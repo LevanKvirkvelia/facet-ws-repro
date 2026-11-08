@@ -1,0 +1,15 @@
+{
+  "name": "facet-ws-repro",
+  "main": "./worker.js",
+  "compatibility_date": "2026-11-04",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "worker_loaders": [{ "binding": "LOADER" }],
+  "durable_objects": {
+    "bindings": [
+      { "name": "NATIVE", "class_name": "NativeRoom" },
+      { "name": "PARENT", "class_name": "FacetParent" }
+    ]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["NativeRoom", "FacetParent"] }]
+}

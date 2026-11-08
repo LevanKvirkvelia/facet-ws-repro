@@ -1,0 +1,3 @@
+{ "name": "facet-ws-repro", "private": true, "type": "module",
+  "scripts": { "deploy": "wrangler deploy", "repro": "node client.mjs" },
+  "devDependencies": { "wrangler": "4.158.0" } }
