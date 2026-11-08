@@ -38,19 +38,24 @@ the room right before `second`; that request goes through the parent's
 | 180 s idle | 0/20 | 17/20 |
 | 180 s idle, warmed through the parent first | 0/20 | 0/20 |
 
-Larger soak on a dedicated Worker with no deploys during the run, two independent
-clients on different networks (macOS laptop and a Linux VPS), both seeing the same:
+Larger soak (2,300 sockets in 530 objects, dedicated Worker, no deploys during the run,
+two clients on different networks: a macOS laptop and a Linux VPS, both agree; every drop is 1006):
 
-| Idle before the wake message | Native DO lost | Facet lost |
-|---|---|---|
-| 15 s | 0/240 (15–300 s combined) | 1/80 |
-| 60 s | | 10/80 |
-| 300 s | | 54/80 |
-| 300 s, facet accepts with `ws.accept()` (not hibernatable) | – | 0/180 |
-| 300 s, facet woken by the parent's alarm via `facets.get` | – | 0/60 |
+| Arm | Dropped, idle 15 s to 30 min |
+|---|---|
+| plain DO | 3/320 (0.9%) |
+| facet | 145/320 (45%) |
+| facet, shared Loader id | 109/240 |
+| facet, busy parent | 107/240 |
+| facet, `ws.accept()` (not hibernatable) | 1/240 |
 
-Whether the parent is busy and whether the Loader id is shared or fresh does not
-change the pattern.
+Facet drops by idle time: 1% at 15 s, 12% at 1 min, 68% at 5 min, 100% at 30 min.
+By room (the independent unit): 44/72 facet rooms vs 3/72 plain rooms lost sockets (p ≈ 4e-14).
+In 72 of 73 facet rooms that kept their sockets, the facet came back in the same Loader isolate.
+76% of drops happen while the socket is still idle, taking every socket in the room in the same millisecond.
+
+Separately, at 2 h idle every socket was closed, plain DOs included (~100 min after the last message);
+that looks like a general WebSocket limit, not this bug.
 
 ## Expected vs actual
 
